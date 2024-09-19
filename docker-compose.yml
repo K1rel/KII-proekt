@@ -1,38 +1,43 @@
-version: "3.5"
+version: "3.8"
 
 services:
-    postgres-db:
-        container_name: pgdb
-        image: postgres:13
-        restart: always
-        ports:
-            - 5432:5432
-        networks:
-            - backend
-        volumes:
-            - ./project/postgres:/appdb
-        environment:
-            POSTGRES_USER: appcrud
-            POSTGRES_PASSWORD: "1234321"
-            POSTGRES_DB: messages
-            PGDATA: /appdb
-    application:
-        container_name: app
-        build:
-            context: .
-        volumes:
-            - .:/opt/application/flask
-        restart: always
-        ports:
-            - 8088:8088
-        networks:
-            - backend
+  postgres-db:
+    container_name: postgres-db
+    image: postgres:13
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: messages
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
-        depends_on:
-            - postgres-db
+  app:
+    container_name: flask-app
+    build:
+      context: .
+    ports:
+      - "8088:8088"
+    depends_on:
+      - postgres-db
+    volumes:
+      - .:/opt/application/flask
+    networks:
+      - backend
+    environment:
+      DATABASE_HOST: postgres-db
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: "admin"
+      DATABASE_DB: messages
+    restart: always
+
+volumes:
+  postgres_data:
 
 networks:
-    backend:
-      driver: "bridge"
-
-
+  backend:
+    driver: bridge
