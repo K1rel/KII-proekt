@@ -4,7 +4,7 @@ metadata:
   name: postgres-db
   namespace: flask-namespace
 spec:
-  serviceName: "postgres"
+  serviceName: "postgres-db"
   replicas: 1
   selector:
     matchLabels:
@@ -19,14 +19,29 @@ spec:
           image: postgres:13
           ports:
             - containerPort: 5432
-          envFrom:
-            - configMapRef:
-                name: postgres-config
-            - secretRef:
-                name: flask-secrets
           volumeMounts:
             - name: postgres-pv
               mountPath: /var/lib/postgresql/data
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: flask-secrets
+                  key: DATABASE_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: flask-secrets
+                  key: DATABASE_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: DATABASE_DB
+      volumes:
+        - name: postgres-pv
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
   volumeClaimTemplates:
     - metadata:
         name: postgres-pv

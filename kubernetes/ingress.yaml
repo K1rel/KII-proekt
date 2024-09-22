@@ -3,6 +3,9 @@ kind: Ingress
 metadata:
   name: flask-ingress
   namespace: flask-namespace
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
     - host: flask-app.local
