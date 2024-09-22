@@ -36,16 +36,18 @@ jobs:
         run: docker logout
 
   slackNotification:
-    needs: docker
-    name: Slack Notification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Send Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+  needs: docker
+  name: Slack Notification
+  runs-on: ubuntu-latest
+  steps:
+    - name: Send Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_CHANNEL }}
+      with:
+        message: "The project ${{ github.repository }} has been successfully built and pushed to DockerHub."
+        username: "CI Pipeline Bot"
+        icon_emoji: ":rocket:" 
 
   discordNotification:
     needs: docker
@@ -55,6 +57,6 @@ jobs:
       - name: Send Discord Notification
         uses: Ilshidur/action-discord@master
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_URL }}
         with:
           args: 'The project ${{ github.repository }} has been successfully built and pushed to DockerHub.'
